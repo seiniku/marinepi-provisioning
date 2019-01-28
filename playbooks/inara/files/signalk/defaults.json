@@ -1,0 +1,36 @@
+{
+  "vessels": {
+    "self": {
+      "name": "Inara",
+      "mmsi": "367763370",
+      "design": {
+        "draft": {
+          "value": {
+            "maximum": 1.98
+          }
+        },
+        "length": {
+          "value": {
+            "overall": 12.05
+          }
+        },
+        "beam": {
+          "value": 3.4
+        },
+        "airHeight": {
+          "value": 13
+        }
+      },
+      "sensors": {
+        "gps": {
+          "fromBow": {
+            "value": 10.5
+          },
+          "fromCenter": {
+            "value": 1.7
+          }
+        }
+      }
+    }
+  }
+}

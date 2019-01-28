@@ -1,0 +1,30 @@
+{
+  "enabled": true,
+  "enableLogging": true,
+  "configuration": {
+    "AISv2": {
+      "enabled": false
+    },
+    "BATTERYv2": {
+      "enabled": false
+    },
+    "COG_SOGv2": {
+      "enabled": false
+    },
+    "DEPTHv2": {
+      "enabled": false
+    },
+    "GPS_LOCATIONv2": {
+      "enabled": false
+    },
+    "HEADINGv2": {
+      "enabled": false
+    },
+    "SYSTEM_TIMEv2": {
+      "enabled": false
+    },
+    "WINDv2": {
+      "enabled": true
+    }
+  }
+}

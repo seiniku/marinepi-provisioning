@@ -1,0 +1,156 @@
+{
+  "enablePluginLogging": true,
+  "interfaces": {
+    "appstore": true,
+    "nmea-tcp": true,
+    "plugins": true,
+    "providers": true,
+    "rest": true,
+    "tcp": true,
+    "webapps": true,
+    "ws": true
+  },
+  "loggingDirectory": "/home/pi/Logs",
+  "mdns": false,
+  "pipedProviders": [
+    {
+      "enabled": true,
+      "id": "OPpypilot",
+      "pipeElements": [
+        {
+          "options": {
+            "logging": false,
+            "subOptions": {
+              "host": "localhost",
+              "port": "20220",
+              "type": "tcp"
+            },
+            "type": "NMEA0183"
+          },
+          "type": "providers/simple"
+        }
+      ]
+    },
+    {
+      "enabled": true,
+      "id": "OPkplex",
+      "pipeElements": [
+        {
+          "options": {
+            "logging": false,
+            "subOptions": {
+              "host": "localhost",
+              "port": "30330",
+              "type": "tcp"
+            },
+            "type": "NMEA0183"
+          },
+          "type": "providers/simple"
+        }
+      ]
+    },
+    {
+      "enabled": true,
+      "id": "OPwifi",
+      "pipeElements": [
+        {
+          "options": {
+            "logging": false,
+            "subOptions": {
+              "port": "55561",
+              "type": "udp"
+            },
+            "type": "SignalK"
+          },
+          "type": "providers/simple"
+        }
+      ]
+    },
+    {
+      "enabled": true,
+      "id": "OPserial",
+      "pipeElements": [
+        {
+          "options": {
+            "logging": false,
+            "subOptions": {
+              "port": "55559",
+              "type": "udp"
+            },
+            "type": "SignalK"
+          },
+          "type": "providers/simple"
+        }
+      ]
+    },
+    {
+      "enabled": true,
+      "id": "OPnotifications",
+      "pipeElements": [
+        {
+          "options": {
+            "logging": false,
+            "subOptions": {
+              "port": "55558",
+              "type": "udp"
+            },
+            "type": "SignalK"
+          },
+          "type": "providers/simple"
+        }
+      ]
+    },
+    {
+      "enabled": true,
+      "id": "OPsensors",
+      "pipeElements": [
+        {
+          "options": {
+            "logging": false,
+            "subOptions": {
+              "port": "55557",
+              "type": "udp"
+            },
+            "type": "SignalK"
+          },
+          "type": "providers/simple"
+        }
+      ]
+    },
+    {
+      "enabled": true,
+      "id": "can0",
+      "pipeElements": [
+        {
+          "type": "providers/canbus",
+          "options": {
+            "canDevice": "can0"
+          }
+        },
+        {
+          "type": "providers/canboatjs"
+        },
+        {
+          "type": "providers/n2k-signalk"
+        }
+      ]
+    },
+    {
+      "enabled": false,
+      "id": "OPcan",
+      "pipeElements": [
+        {
+          "options": {
+            "logging": false,
+            "subOptions": {
+              "device": "/dev/ttyOP_",
+              "type": "ngt-1"
+            },
+            "type": "NMEA2000"
+          },
+          "type": "providers/simple"
+        }
+      ]
+    }
+  ]
+}
