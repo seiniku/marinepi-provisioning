@@ -1,0 +1,19 @@
+{
+  "allow_readonly": true,
+  "expiration": "1d",
+  "secretKey": "fe6edfb6fb5bee668033ff0167702b868dd019925cd47e5e71fd4342d153230dec8a89f8d9877219188952f537ae61efef89de71f80b57c54fdae5915984819103d0ea9255d95c0dbd6281ec27a2092306668d5ee1ca7bb3e779bc9bfb8c02c763eaac546cf48f766dc4993827d30c2559dd63bd700c2a7ddeaa553c474ea0ac28231cc4488402b5f32f19b23874bd2a3fee0e34241f32cda8e0f9b8d69c9dce8f00fac27ca3cf61ed3e42d9e30a7d272c1919470bfecb74fcb4b47757e6ed1c0d5aebdbc97b0beb857f741f4d2862298226b597a2dfcaa9675e2b365d1b99419f7915e010183e960a46179283def82b64f10b614952fb60b8a6eb093f7d009f",
+  "users": [
+    {
+      "username": "openplotter",
+      "type": "admin",
+      "password": "$2a$10$CC.W.nVBPjDJvM2JMYjore1b0TZfPwmTEWqFO5tzq5CSAzfoDKk.W"
+    },
+    {
+      "username": "ray",
+      "type": "readwrite",
+      "password": "$2a$10$bQwukPbBYAu6HW9jMnbAOuh9oUxLQZGfAFQ8VIHjNn5BmM.OZAM8G"
+    }
+  ],
+  "immutableConfig": false,
+  "acls": []
+}

@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <script src="/jquery/dist/jquery.min.js"></script> </script>
+    <script src="/bootstrap/dist/js/bootstrap.min.js"></script>
+    <script src="jquery.fittext.js"></script>
+
+    <title>Speed Display</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+    <link href="/bootstrap/dist/css/bootstrap.min.css" rel="stylesheet" title="main">
+    <style>
+.display {
+  display: block
+}
+
+    </style>
+    <script language="javascript">
+    </script>
+  </head>
+  <body>
+    <div class="container-fluid" id="controls">
+      <h1>Speed<small>go fast</small></h1>
+      <div class="display h1" id="sog">-0</div>
+      <div class="display h1" id="vmg">-0</div>
+      <div class="display h1" id="dtm"></div>
+      <div class="display h1" id="depth">-0</div>
+      <nav class="navbar navbar-default navbar-fixed-bottom">
+        <div class="container-fluid">
+          <div class="navbar-header">
+            <button class="btn btn-default navbar-btn" id="theme">Day/Night</button>
+          </div>
+        </div>
+      </nav>
+  </body>
+  <script>
+var kindle = "Linux armv7l;"
+if (navigator.userAgent.indexOf(kindle) == -1){
+  var ws = new WebSocket("ws://192.168.88.2/signalk/v1/stream?subscribe=none");
+
+  ws.onopen = function() {
+    var subscriptionObject = {
+      "context": "vessels.self",
+      "subscribe": [{
+        "path": "environment.depth.belowTransducer"
+      }, {
+        "path": "navigation.speedOverGround"
+      }, {
+        "path": "performance.velocityMadeGood"
+      }, {
+        "path": "navigation.courseRhumbline.nextPoint.distance"
+      }]
+    };
+    var subscriptionMessage = JSON.stringify(subscriptionObject);
+    console.log("Sending subscription:" + subscriptionMessage)
+      ws.send(subscriptionMessage);
+  }
+
+  ws.onclose = function() {
+    console.log("ws close");
+  }
+
+  var dataDiv = document.getElementById('data');
+  ws.onmessage = function(event) {
+    var update = JSON.parse(event.data)["updates"][0]["values"][0];
+    if (update["path"] == "environment.depth.belowTransducer"){
+      document.getElementById("depth").innerHTML = "<small>dbw</small>" + update["value"].toFixed(2);
+      $("#depth").fitText(0.4);        
+    }
+    else if (update["path"] == "navigation.speedOverGround"){
+      document.getElementById("sog").innerHTML = "<small>sog</small>" + update["value"].toFixed(2);
+      $("#sog").fitText(0.4);        
+    }
+    else if (update["path"] ==  "performance.velocityMadeGood"){
+      document.getElementById("vmg").innerHTML = "<small>vmg</small>" + update["value"].toFixed(2);
+      $("#vmg").fitText(0.4);
+    }
+    else if (update["path"] ==  "navigation.courseRhumbline.nextPoint.distance"){
+      document.getElementById("dtm").innerHTML = "<small>dtm</small>" + update["value"].toFixed(2);
+    }
+  }
+} 
+else {
+  urlServer = "http://" + window.location.host + "/signalk/v1/api/vessels/self/"
+  //urlServer = "http://demo.signalk.org/signalk/v1/api/vessels/self/";
+  function startRequest(){
+    var jsonParsed;
+    setInterval(function(){
+      var xhttp = new XMLHttpRequest();
+      xhttp.open("get", urlServer, true);
+      xhttp.send();
+      xhttp.onreadystatechange = function() {
+        if (xhttp.readyState == 4 && xhttp.status == 200) {
+          value = JSON.parse(xhttp.responseText);
+          document.getElementById("sog").innerHTML = "<small>sog</small>" + value.navigation.speedOverGround.value.toFixed(2);
+          $("#sog").fitText(0.4);
+          document.getElementById("vmg").innerHTML = "<small>vmg</small>" + value.performance.velocityMadeGood.value.toFixed(2);
+          $("#vmg").fitText(0.4);
+          document.getElementById("depth").innerHTML = "<small>depth</small>" + value.environment.depth.belowTransducer.value.toFixed(2);
+          $("#depth").fitText(0.4);
+          //document.getElementById("dtm").innerHTML = "<small>dtm</small>" + value.navigation.courseRhumbline.nextPoint.distance.value.toFixed(2);
+        }
+      }
+    }, 4000);
+  }
+}
+startRequest();
+  </script>
+</html>

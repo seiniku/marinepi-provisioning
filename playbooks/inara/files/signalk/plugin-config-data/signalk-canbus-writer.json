@@ -1,0 +1,8 @@
+{
+  "enabled": true,
+  "enableLogging": false,
+  "configuration": {
+    "bus": "can0",
+    "logging": false
+  }
+}

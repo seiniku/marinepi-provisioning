@@ -1,0 +1,161 @@
+# Copyright 2015-2016 Harri Kapanen <harri.kapanen@iki.fi>
+#
+# Licensed under the Apache License, Version 2.0 (the "License");
+# you may not use this file except in compliance with the License.
+# You may obtain a copy of the License at
+#
+#     http://www.apache.org/licenses/LICENSE-2.0
+#
+# Unless required by applicable law or agreed to in writing, software
+# distributed under the License is distributed on an "AS IS" BASIS,
+# WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+# See the License for the specific language governing permissions and
+# limitations under the License.
+
+---
+- hosts: 131.212.120.151
+  remote_user: jkeppers
+  gather_facts: yes
+  become: yes
+
+# Configure vars and roles below to match your setup and environment
+# You can define 1...n wificlients by adding/removing lines
+
+  vars:
+    - hostname: inara
+
+    # timezone - server timezone  (optional)
+
+    #
+    #  defaults to Etc/UTC. Uncomment to override. for valid values, see:
+    #    https://en.wikipedia.org/wiki/List_of_tz_database_time_zones)
+    #
+    - timezone: America/Chicago
+
+    # signalk_setings_file - config file for server (optional)
+    #
+    #  defaults to the testing config file. Uncomment to override. for
+    #  examples see:
+    #    https://github.com/SignalK/signalk-server-node/tree/master/settings
+    #
+    - signalk_setings_file: ./signalk-settings-inara.json
+    - signalk_plugins:
+        - "@mxtommy/kip"
+        - "@signalk/freeboard-sk"
+        - "@signalk/server-admin-ui"
+        - "@signalk/simulatorplugin"
+        - signalk-airmar-plugin
+        - signalk-anchoralarm-plugin
+        - signalk-canbus-writer-plugin
+        - signalk-raspberry-pi-monitoring
+        - signalk-raymarine-autopilot
+        - signalk-simple-notifications
+        - signalk-to-nmea2000
+        - sk-simple-token-security-config
+        - skwiz
+
+  roles:
+    - ../../roles/common
+    - ../../roles/canboat
+    - ../../roles/signalk
+    - ../../roles/pysk
+
+  tasks:
+    - name: ensure dotfile directories exist
+      file: path={{ item }} state=directory mode=0755
+      with_items:
+        - "{{ ansible_env.HOME }}/.ssh"
+        - "{{ ansible_env.HOME }}/.vim"
+        - "{{ ansible_env.HOME }}/www"
+    - name: copy authorized_keys
+      copy: 
+        src: ./files/authorized_keys
+        dest: "{{ ansible_env.HOME }}/.ssh/authorized_keys"
+        owner: pi
+        group: pi
+        mode: 0644
+    - name: copy zshrc
+      copy: 
+        src: ./files/.zshrc
+        dest: "{{ ansible_env.HOME }}/.zshrc"
+        owner: pi
+        group: pi
+        mode: 0755
+    - name: copy zshrc.local
+      copy: 
+        src: ./files/.zshrc.local
+        dest: "{{ ansible_env.HOME }}/.zshrc.local"
+        owner: pi
+        group: pi
+        mode: 0755
+    - name: copy can0
+      copy: 
+        src: ./files/can0
+        dest: "/etc/network/interfaces.d/can0"
+        owner: root
+        group: root
+        mode: 0644
+    - name: copy speed.html
+      copy: 
+        src: ./files/speed.html
+        dest: "{{ ansible_env.HOME }}/www/speed.html"
+        owner: pi
+        group: pi
+        mode: 0644
+    - name: copy raypilot.html
+      copy: 
+        src: ./files/raypilot.html
+        dest: "{{ ansible_env.HOME }}/www/raypilot.html"
+        owner: pi
+        group: pi
+        mode: 0644
+    - name: copy jquery.fittext.js
+      copy: 
+        src: ./files/jquery.fittext.js
+        dest: "{{ ansible_env.HOME }}/www/jquery.fittext.js"
+        owner: pi
+        group: pi
+        mode: 0644
+    - name: copy pilot.js
+      copy: 
+        src: ./files/pilot.js
+        dest: "{{ ansible_env.HOME }}/www/pilot.js"
+        owner: pi
+        group: pi
+        mode: 0644
+    - name: copy themeswap.js
+      copy: 
+        src: ./files/themeswap.js
+        dest: "{{ ansible_env.HOME }}/www/themeswap.js"
+        owner: pi
+        group: pi
+        mode: 0644
+    - name: copy iprules_v4
+      copy: 
+        src: ./files/rules.v4
+        dest: "/etc/iptables/"
+        owner: root
+        group: root
+        mode: 0644
+    - name: reload firewall
+      command: iptables-restore /etc/iptables/rules.v4
+    - name: mount var/log readonly
+      mount:
+        path: /var/log
+        src: tmpfs
+        fstype: tmpfs
+        opts: defaults,noatime,nosuid,mode=0755,size=100m
+        state: mounted
+
+    - name: clone vundle
+      become: false
+      git:
+        repo: https://github.com/VundleVim/Vundle.vim.git
+        dest: "~/.vim/bundle/Vundle.vim"
+        version: master
+    - name: install vundle plugins
+      become: false
+      command: vim +PluginInstall +qall
+
+  handlers:
+    - include: ../../handlers/handlers.yml
