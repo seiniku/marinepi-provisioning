@@ -1,6 +1,6 @@
 #
 # Copied from usb-modeswitch-data package, but added DefaultVendor and DefaultProduct
-#
+# changed filename to have a dash instead of colon for windows users.
 
 # Huawei E353 (3.se) and others
 DefaultVendor=0x12d1
