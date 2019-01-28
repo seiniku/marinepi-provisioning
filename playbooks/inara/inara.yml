@@ -13,7 +13,7 @@
 # limitations under the License.
 
 ---
-- hosts: 131.212.120.151
+- hosts: inara
   remote_user: jkeppers
   gather_facts: yes
   become: yes
@@ -61,6 +61,13 @@
     - ../../roles/pysk
 
   tasks:
+    - name: install some tools
+      apt: 
+        name: "{{ tools }}"
+      vars:
+        tools:
+        - vim
+        - fail2ban
     - name: ensure dotfile directories exist
       file: path={{ item }} state=directory mode=0755
       with_items:
@@ -71,22 +78,16 @@
       copy: 
         src: ./files/authorized_keys
         dest: "{{ ansible_env.HOME }}/.ssh/authorized_keys"
-        owner: pi
-        group: pi
         mode: 0644
     - name: copy zshrc
       copy: 
         src: ./files/.zshrc
         dest: "{{ ansible_env.HOME }}/.zshrc"
-        owner: pi
-        group: pi
         mode: 0755
     - name: copy zshrc.local
       copy: 
         src: ./files/.zshrc.local
         dest: "{{ ansible_env.HOME }}/.zshrc.local"
-        owner: pi
-        group: pi
         mode: 0755
     - name: copy can0
       copy: 
@@ -99,36 +100,26 @@
       copy: 
         src: ./files/speed.html
         dest: "{{ ansible_env.HOME }}/www/speed.html"
-        owner: pi
-        group: pi
         mode: 0644
     - name: copy raypilot.html
       copy: 
         src: ./files/raypilot.html
         dest: "{{ ansible_env.HOME }}/www/raypilot.html"
-        owner: pi
-        group: pi
         mode: 0644
     - name: copy jquery.fittext.js
       copy: 
         src: ./files/jquery.fittext.js
         dest: "{{ ansible_env.HOME }}/www/jquery.fittext.js"
-        owner: pi
-        group: pi
         mode: 0644
     - name: copy pilot.js
       copy: 
         src: ./files/pilot.js
         dest: "{{ ansible_env.HOME }}/www/pilot.js"
-        owner: pi
-        group: pi
         mode: 0644
     - name: copy themeswap.js
       copy: 
         src: ./files/themeswap.js
         dest: "{{ ansible_env.HOME }}/www/themeswap.js"
-        owner: pi
-        group: pi
         mode: 0644
     - name: copy iprules_v4
       copy: 

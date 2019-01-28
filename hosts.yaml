@@ -1,0 +1,5 @@
+all:
+  hosts:
+    inara:
+      ansible_host: 131.212.120.151
+        ansible_user:jkeppers
