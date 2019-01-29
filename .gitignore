@@ -1,3 +1,4 @@
 .idea/
 playbooks/chacal/
 *.retry
+playbooks/inara/files/etc/wpa_supplicant/wpa_supplicant\.conf

@@ -58,6 +58,7 @@
     - ../../roles/common
     - ../../roles/canboat
     - ../../roles/signalk
+      
     - ../../roles/pysk
 
   tasks:
@@ -89,6 +90,13 @@
         src: ./files/.zshrc.local
         dest: "{{ ansible_env.HOME }}/.zshrc.local"
         mode: 0755
+    - name: copy wpa_supplicant.conf
+      copy:
+        src: ./files/etc/wpa_supplicant/wpa_supplicant.conf
+        dest: /etc/wpa_supplicant/wpa_supplicant.conf
+        mode: 0644
+        owner: root
+        group: root
     - name: copy can0
       copy: 
         src: ./files/can0
