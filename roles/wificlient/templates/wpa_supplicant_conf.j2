@@ -6,7 +6,11 @@ update_config=1
 {% for wlan in wificlient_networks %}
 network={
     ssid="{{ wlan.ssid }}"
+{% if wlan.psk is defined %}    
     psk="{{ wlan.psk }}"
+{% else %}
+    key_mgmt=NONE
+{% endif %}
 {% if wlan.priority is defined %}
     priority={{ wlan.priority }}
 {%- endif %}    
