@@ -41,6 +41,8 @@
   vars:
     packages:
     - build-essential
+    - vim-nox
+    - fail2ban
     - git
     - curl
     - htop
