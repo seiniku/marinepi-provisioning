@@ -1,0 +1,25 @@
+---
+  - name: Install ufw
+    apt: pkg=ufw state=present
+    become: true
+  - name: set logging for ufw
+    ufw: 
+      logging: on
+  - name: Allow ssh via ufw
+    ufw:
+      rule: allow
+      name: OpenSSH
+      log: yes
+      src: '{{ item }}'
+    with_items: '{{ allowed_networks }}'
+  - name: Allow http/s via ufw
+    ufw:
+      rule: allow
+      port: 80,443
+      proto: tcp
+      src: '{{ item }}'
+    with_items: '{{ allowed_networks }}'
+  - name: default deny, enable ufw
+    ufw:
+      state: enabled
+      policy: deny

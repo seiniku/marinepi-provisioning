@@ -1,0 +1,9 @@
+---
+- name: Install necessary packages
+  apt:
+    name: "{{ packages }}"
+    state: latest
+  vars:
+    packages:
+    - busybox-syslogd
+

@@ -52,14 +52,29 @@
        - ssid: "Bad_Wolf"
          psk: "Potatoes"
     - crda_domain_code: US
-    
+
   roles:
     - common
+    - role: ufw
+      vars:
+        allowed_networks:
+        - 131.212.60.0/24
+        - 192.168.1.0/24
+        - 192.168.88.0/24
+        - 47.35.173.50
+      tags: firewall
+    - role: busybox
+      tags: busybox
     - crda_domain
     - wificlient
     - canboat
     - signalk
     - pysk
+    - role: root-ro
+      vars:
+        root_ro_ramdisk_size: 128m
+        root_ro_enabled: false
+      tags: ro
 
   handlers:
     - include: handlers/handlers.yml

@@ -1,0 +1,5 @@
+---
+#list of allowed networks
+allowed_networks: 
+  - 192.168.1.0/24
+  - 131.212.60.0/24
