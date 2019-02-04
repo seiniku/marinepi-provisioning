@@ -1,0 +1,14 @@
+{
+  "name": "signalk-server-config",
+  "version": "0.0.1",
+  "description": "This file is here to track your plugin and webapp installs.",
+  "repository": {},
+  "license": "Apache-2.0",
+  "dependencies": {
+    "signalk-airmar-plugin": "^1.1.1",
+    "signalk-derived-data": "^1.20.1",
+    "signalk-raspberry-pi-monitoring": "^1.1.1",
+    "signalk-raymarine-autopilot": "^1.0.2",
+    "signalk-to-nmea2000": "^2.2.4"
+  }
+}

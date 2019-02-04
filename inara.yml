@@ -52,23 +52,22 @@
        - ssid: "Bad_Wolf"
          psk: "Potatoes"
     - crda_domain_code: US
-
+    - allowed_networks:
+      - 131.212.60.0/24
+      - 192.168.1.0/24
+      - 192.168.88.0/24
+      - 47.35.173.50
   roles:
     - common
     - role: ufw
-      vars:
-        allowed_networks:
-        - 131.212.60.0/24
-        - 192.168.1.0/24
-        - 192.168.88.0/24
-        - 47.35.173.50
       tags: firewall
     - role: busybox
       tags: busybox
     - crda_domain
     - wificlient
     - canboat
-    - signalk
+    - role: signalk-server
+      tags: signalk
     - pysk
     - role: root-ro
       vars:

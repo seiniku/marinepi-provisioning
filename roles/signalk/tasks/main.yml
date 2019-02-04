@@ -13,7 +13,15 @@
 # limitations under the License.
 ---
   - name: "Install mdns dependency"
-    apt: pkg=libavahi-compat-libdnssd-dev state=latest
+    apt: 
+      name: {{ packages }}
+      state: latest
+    vars:
+      packages:
+      - libavahi-compat-libdnssd-dev state=latest
+      - libnss-mdns
+      - avahi-utils
+      - libavahi-compat-libnssd-dev
 
   - name: Copy Default SignalK server settings
     copy:
