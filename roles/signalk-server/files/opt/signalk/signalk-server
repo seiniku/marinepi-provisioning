@@ -1,0 +1,2 @@
+#!/bin/sh
+/usr/local/lib/node_modules/signalk-server/bin/signalk-server -c /opt/signalk $*

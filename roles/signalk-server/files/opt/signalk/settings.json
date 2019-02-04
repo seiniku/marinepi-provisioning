@@ -1,0 +1,17 @@
+{
+  "pipedProviders": [],
+  "interfaces": {
+    "appstore": true,
+    "logfiles": true,
+    "nmea-tcp": true,
+    "plugins": true,
+    "providers": true,
+    "rest": true,
+    "tcp": true,
+    "webapps": true,
+    "ws": true
+  },
+  "mdns": false,
+  "wsCompression": false,
+  "enablePluginLogging": true
+}
