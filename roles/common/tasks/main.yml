@@ -28,16 +28,24 @@
 - name: Update the apt cache
   apt: update_cache=yes cache_valid_time=7200
   failed_when: False
+  register: task_result
+  until: task_result is success
+  retries: 2
+  delay: 5
 
 - name: Update the Raspbian distribution
   apt: upgrade=yes
-  when: apt_upgrade == true
+  when: apt_upgrade
   notify: reboot
+  register: task_result
+  until: task_result is success
+  retries: 2
+  delay: 5
 
 - name: Install/update some basic tools
   apt:
     name: "{{ packages }}"
-    state: latest
+    state: present
   vars:
     packages:
     - build-essential
@@ -61,23 +69,30 @@
     - wavemon
     - telnet
     - speedtest-cli
+  register: task_result
+  until: task_result is success
+  retries: 2
+  delay: 5
 
 - name: Autoremove any unused packages
   apt:
     autoremove: yes
+  register: task_result
+  until: task_result is success
+  retries: 2
+  delay: 5
 
 - name: Autoclean the system
   apt:
     autoclean: yes
+  register: task_result
+  until: task_result is success
+  retries: 2
+  delay: 5
 
-- name: Some shell aliases for the user
-  lineinfile: dest=~{{ ansible_ssh_user }}/.bashrc line="{{ item }}"
-  with_items:
-  - "alias ll='ls -l'"
-  - "alias la='ls -la'"
-  - "alias lt='ls -lat'"
-
-- name: Disable logging to /dev/xconsole   # By default nobody reads from /dev/xconsole and thus it overflows causing "action 'action 17' suspended" errors to syslog
+# By default nobody reads from /dev/xconsole
+# thus it overflows causing "action 'action 17' suspended" errors to syslog
+- name: Disable logging to /dev/xconsole
   replace:
     dest=/etc/rsyslog.conf
     regexp='^daemon.*mail(.|\n)*?/dev/xconsole'
