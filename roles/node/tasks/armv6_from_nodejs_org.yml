@@ -14,42 +14,58 @@
 
 ---
 
+
 - name: Check for existing Node.js install
   stat:
-    path: "{{ nodejs_armv6_binary }}"
+    path: "{{ armv6_binary }}"
   register: node_exists
 
 - name: Get installed Node.js version
-  command: "{{ nodejs_armv6_binary }} --version"
+  command: "{{ armv6_binary }} --version"
   register: installed_node_version
   when: "node_exists.stat.exists"
   changed_when: False
   failed_when: False
 
 - name: Get latest available Node.js tarball filename
-  shell: curl https://nodejs.org/dist/{{ nodejs_armv6_version }}/ | grep armv6l.tar.gz | sed 's/.*>\(.*\)<\/a>.*/\1/g' || /bin/true
+  shell: >
+    curl https://nodejs.org/dist/{{ armv6_version }}/ |
+    grep armv6l.tar.gz |
+     sed 's/.*>\(.*\)<\/a>.*/\1/g' ||
+     /bin/true
   args:
     warn: False
-  register: latest_node_filename
+  register: latest_node
   changed_when: False
+
+- name: get latest list of filenames
+  uri:
+    url: https://nodejs.org/dist/{{ armv6_version }}/
+    return_content: yes
+  register: node_filenames
+  failed_when: "'SHASUMS256.txt' not in node_filenames.content"
 
 - name: Get latest available Node.js version
   set_fact:
-    latest_node_version: "{{ latest_node_filename.stdout | regex_search('node-(.*)-linux-armv6l.tar.gz', '\\1') | first }}"
-  when: latest_node_filename.stdout != ""
+    latest_node_version: "{{ latest_node.stdout | regex_search('node-(.*)-linux-armv6l.tar.gz', '\\1') | first }}"
+  when: latest_node.stdout
 
 - name: Install Node.js
   block:
   - name: Generate download URL
-    set_fact: node_download_url=https://nodejs.org/dist/{{ nodejs_armv6_version }}/node-{{ latest_node_version }}-linux-armv6l.tar.gz
-
-  - name: Download Node.js binary distribution
-    get_url: url={{ node_download_url }} dest=/tmp/nodejs.tar.gz mode=0440
+    set_fact:
+      node_download_url: https://nodejs.org/dist/{{ armv6_version }}/node-{{ latest_node_version }}-linux-armv6l.tar.gz
 
   - name: Extract distribution package to /usr/local
-    shell: tar xzf /tmp/nodejs.tar.gz -C /usr/local --strip-components=1 --no-same-owner
-    args:
-      warn: False
+    unarchive:
+        src: "{{ node_download_url }}"
+        dest: /usr/local
+        remote_src: yes
+        group: root
+        creates: no
+        owner: root
+        extra_opts: --strip-components=1
+        validate_certs: yes
 
   - name: Link binary to /usr/bin/node
     file: src=/usr/local/bin/node dest=/usr/bin/node state=link force=yes
@@ -58,4 +74,5 @@
     file: path=/tmp/nodejs.tar.gz state=absent
 
   when: (not node_exists.stat.exists)
-        or (latest_node_version is defined and (latest_node_version != installed_node_version.stdout))
+        or (latest_node_version is defined
+        and (latest_node_version != installed_node_version.stdout))
