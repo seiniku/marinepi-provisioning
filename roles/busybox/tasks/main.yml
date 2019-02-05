@@ -2,8 +2,11 @@
 - name: Install necessary packages
   apt:
     name: "{{ packages }}"
-    state: latest
+    state: present
   vars:
     packages:
     - busybox-syslogd
-
+  register: task_result
+  until: task_result is success
+  retries: 2
+  delay: 5
