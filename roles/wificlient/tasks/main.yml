@@ -24,6 +24,7 @@
 - name: Switch USB to max power output
   lineinfile: dest=/boot/config.txt line='max_usb_current=1'
   notify: reboot
+  when: usb_wifi
 
 ##############################################################################
 # wpa supplicant
