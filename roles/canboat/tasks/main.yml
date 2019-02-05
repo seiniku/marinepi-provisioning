@@ -13,22 +13,24 @@
 # limitations under the License.
 
 ---
-- name: Download canboat
-  git: repo=https://github.com/canboat/canboat.git dest={{ canboat_path }} clone=yes force=yes
-  become: no
-  register: canboat_sources
 
 - name: Install xsltproc needed for canboat compiling
-  apt: pkg=xsltproc state=latest
+  apt:
+    name: xsltproc
+    state: present
+  register: task_result
+  until: task_result is success
+  retries: 2
+  delay: 5
 
-- command: make
-  args:
-    chdir: "{{ canboat_path }}"
+- name: Download canboat
+  git:
+    repo: https://github.com/canboat/canboat.git
+    dest: "{{ canboat_path }}"
+    clone: yes
+    depth: 1
+    force: yes
+    version: v1.2.1
   become: no
-  when: canboat_sources.changed
+  notify: make-install-canboat
 
-- command: make install
-  args:
-    chdir: "{{ canboat_path }}"
-  ignore_errors: yes  # can't help the way Makefile is written...
-  when: canboat_sources.changed
