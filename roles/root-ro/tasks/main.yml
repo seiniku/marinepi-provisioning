@@ -1,21 +1,28 @@
 ---
+
 - name: Install busybox
-  apt: pkg=busybox state=latest
+  apt:
+    name: busybox
+    state: present
+  register: task_result
+  until: task_result is success
+  retries: 2
+  delay: 5
 
 - name: Install initramfs boot script
-  template: src=overlayfs-root.j2 dest=/etc/initramfs-tools/scripts/init-bottom/overlayfs-root mode=755
+  template:
+    src: overlayfs-root.j2
+    dest: /etc/initramfs-tools/scripts/init-bottom/overlayfs-root
+    mode: 0755
   notify: update_initramfs
 
 - name: Include OverlayFS kernel module to initramfs image
   lineinfile: dest=/etc/initramfs-tools/modules line=overlay
   notify: update_initramfs
 
-- name: Get kernel version
-  shell: uname -r
-  register: kernel_version
 
 - name: Enable initramfs in config.txt
-  lineinfile: dest=/boot/config.txt regexp="^initramfs initrd.img.*" line="initramfs initrd.img-{{ kernel_version.stdout }}"
+  lineinfile: dest=/boot/config.txt regexp="^initramfs initrd.img.*" line="initramfs initrd.img-{{ ansible_kernel }}"
   notify: reboot
 
 - name: Remove disable-root-ro parameter from kernel command line
