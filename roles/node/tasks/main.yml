@@ -20,7 +20,13 @@
   when: ansible_machine != 'armv6l'
 
 - name: Install build-essential package
-  apt: pkg=build-essential state=latest
+  apt:
+    name: build-essential
+    state: present
+  register: task_result
+  until: task_result is success
+  retries: 2
+  delay: 5
 
 - name: Give node capabilities for raw networking
   capabilities:
@@ -28,4 +34,3 @@
     capability: cap_net_raw+eip
   when: nodejs_cap_net_raw_capabilities
   become: yes
-  
