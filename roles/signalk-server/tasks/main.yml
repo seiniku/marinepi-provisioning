@@ -1,80 +1,92 @@
 ---
-  - name: Install mdns dependency
-    apt: 
-      name: '{{ packages }}'
-      cache_valid_time: 7200
-    vars:
-      packages:
-      - libavahi-compat-libdnssd-dev
-      - libnss-mdns
-      - avahi-utils
+- name: Install mdns dependency
+  apt:
+    name: '{{ packages }}'
+    cache_valid_time: 7200
+  vars:
+    packages:
+    - libavahi-compat-libdnssd-dev
+    - libnss-mdns
+    - avahi-utils
+  register: task_result
+  until: task_result is success
+  retries: 2
+  delay: 5
 
-  - name: allow port 3000
-    ufw:
-      rule: allow
-      port: 3000
-      proto: tcp
-      src: '{{ item }}'
-    with_items: '{{ allowed_networks }}'
+- name: allow port 3000
+  ufw:
+    rule: allow
+    port: 3000
+    proto: tcp
+    src: '{{ item }}'
+  with_items: '{{ allowed_networks }}'
 
-  - name: add signalk user
-    user:
-      name: signalk
-      shell: /bin/bash
+- name: add signalk user
+  user:
+    name: signalk
+    shell: /bin/bash
 
-  - name: make config directory
-    file:
-      path: /opt/signalk/
-      state: directory
-      mode: 0755
-      owner: signalk
-      group: signalk
+- name: make config directory
+  file:
+    path: /opt/signalk/
+    state: directory
+    mode: 0755
+    owner: signalk
+    group: signalk
 
-  - name: make log directory
-    file:
-      path: /var/log/signalk
-      state: directory
-      mode: 0755
-      owner: signalk
-      group: signalk
+- name: make log directory
+  file:
+    path: /var/log/signalk
+    state: directory
+    mode: 0755
+    owner: signalk
+    group: signalk
 
 # will not overwrite existing configs
-  - name: copy default configs
-    copy:
-      src: opt/signalk/
-      dest: /opt/signalk
-      owner: signalk
-      group: signalk
-      force: no
+- name: copy default configs
+  copy:
+    src: opt/signalk/
+    dest: /opt/signalk
+    owner: signalk
+    group: signalk
+    force: no
 
-  - name: copy service configs
-    copy:
-      src: etc/systemd/system/
-      dest: /etc/systemd/system/
-      owner: root
-      group: root
-      force: no
+- name: copy service configs
+  copy:
+    src: etc/systemd/system/
+    dest: /etc/systemd/system/
+    owner: root
+    group: root
+    force: no
 
-  - name: set execute on signalk-server
-    file:
-      path: /opt/signalk/signalk-server
-      state: file
-      mode: 0755
-    
-  - name: install signalk --long process--
-    npm:
-      name: signalk-server
-      global: yes
-      state: latest
+- name: set execute on signalk-server
+  file:
+    path: /opt/signalk/signalk-server
+    state: file
+    mode: 0755
 
-  - name: install signalk plugins
-    npm:
-      path: /opt/signalk
-      state: latest
+- name: install signalk --long process--
+  npm:
+    name: signalk-server
+    global: yes
+    state: present
+  register: task_result
+  until: task_result is success
+  retries: 2
+  delay: 5
 
-  - name: install signalk systemd service
-    systemd:
-      daemon_reload: yes
-      name: signalk
-      enabled: yes
-      state: started
+- name: install signalk plugins
+  npm:
+    path: /opt/signalk
+    state: present
+  register: task_result
+  until: task_result is success
+  retries: 2
+  delay: 5
+
+- name: install signalk systemd service
+  systemd:
+    daemon_reload: yes
+    name: signalk
+    enabled: yes
+    state: started
