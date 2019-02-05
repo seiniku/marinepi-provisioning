@@ -1,0 +1,12 @@
+---
+- name: make canboat
+  make:
+    chdir: "{{ canboat_path }}"
+  listen: make-install-canboat
+
+- name: make install canboat
+  make:
+    chdir: "{{ canboat_path }}"
+    target: install
+  become: yes
+  listen: make-install-canboat
