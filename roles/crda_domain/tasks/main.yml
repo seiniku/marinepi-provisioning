@@ -2,12 +2,16 @@
 - name: Install necessary packages
   apt:
     name: "{{ packages }}"
-    state: latest
+    state: present
   vars:
     packages:
     - wireless-regdb
     - iw
     - crda
+  register: task_result
+  until: task_result is success
+  retries: 2
+  delay: 5
 
 - name: Set regulatory domain
   lineinfile: dest=/etc/default/crda regexp="REGDOMAIN=.*" line="REGDOMAIN={{ crda_domain_code }}"
