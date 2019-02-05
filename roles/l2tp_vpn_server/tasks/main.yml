@@ -25,11 +25,15 @@
 - name: Install packages
   apt:
     name: "{{ packages }}"
-    state: latest
+    state: present
   vars:
     packages:
     - strongswan
     - xl2tpd
+  register: task_result
+  until: task_result is success
+  retries: 2
+  delay: 5
 
 - name: Enable IPv4 forwarding
   lineinfile: dest=/etc/sysctl.conf regexp='.*net.ipv4.ip_forward.*' line='net.ipv4.ip_forward=1'
@@ -43,7 +47,11 @@
   copy: src=80-ipsec.dhcpcd.conf dest=/lib/dhcpcd/dhcpcd-hooks/80-ipsec.conf
 
 - name: Set IPSec PSK secret
-  lineinfile: 'dest=/etc/ipsec.secrets regexp="^%any %any : PSK.*" line="%any %any : PSK \"{{ l2tp_vpn_psk }}\"" create=yes'
+  lineinfile:
+    dest: /etc/ipsec.secrets
+    regexp: "^%any %any : PSK.*"
+    line: "%any %any : PSK \"{{ l2tp_vpn_psk }}\""
+    create: yes
   notify: restart_ipsec
 
 - name: Enable ipsec secrets
@@ -59,7 +67,11 @@
   notify: restart_xl2tpd
 
 - name: Configure CHAP secrets
-  lineinfile: dest=/etc/ppp/chap-secrets regexp=".*raspi-vpn-server.*" line='* raspi-vpn-server {{ l2tp_vpn_psk }} *' create=yes
+  lineinfile:
+    dest: /etc/ppp/chap-secrets
+    regexp: ".*raspi-vpn-server.*"
+    line: '* raspi-vpn-server {{ l2tp_vpn_psk }} *'
+    create: yes
   notify: restart_xl2tpd
 
 - name: Configure PPP options
@@ -67,14 +79,20 @@
   notify: restart_xl2tpd
 
 - name: Set sysctl configs
-  lineinfile: dest=/etc/sysctl.conf regexp=".*{{ item.key }}.*" line="{{ item.key }} = {{ item.value }}"
+  sysctl:
+    name: "{{ item.key }}"
+    value: "{{ item.value }}"
+    sysctl_set: yes
+    state: present
+    reload: yes
   with_items:
     - { key: 'net.ipv4.conf.default.rp_filter', value: 0 }
     - { key: 'net.ipv4.conf.default.accept_source_route', value: 0 }
     - { key: 'net.ipv4.conf.all.send_redirects', value: 0 }
     - { key: 'net.ipv4.conf.default.send_redirects', value: 0 }
     - { key: 'net.ipv4.icmp_ignore_bogus_error_responses', value: 1 }
-  notify: reload_sysctl
+
+
 
 - name: Enable IPSec service
   service: name=ipsec state=started enabled=yes
