@@ -25,7 +25,13 @@
 # DNS and DHCP services
 
 - name: Install dnsmasq
-  apt: pkg=dnsmasq state=latest
+  apt:
+    name: dnsmasq
+    state: present
+  register: task_result
+  until: task_result is success
+  retries: 2
+  delay: 5
 
 - name: copy dnsmasq.conf over
   template: src=dnsmasq_conf.j2 dest=/etc/dnsmasq.conf
@@ -39,29 +45,36 @@
 # Interfaces
 
 - name: Install/update bridge-utils if needed
-  apt: pkg=bridge-utils state=latest
+  apt:
+    name: bridge-utils
+    state: present
+  register: task_result
+  until: task_result is success
+  retries: 2
+  delay: 5
   when: nat_router_bridge_interfaces|length > 0
 
 - name: Ensure interface.d source-dir reference
-  lineinfile: 
-    dest=/etc/network/interfaces 
+  lineinfile:
+    dest=/etc/network/interfaces
     line='source-directory /etc/network/interfaces.d'
   notify: restart-networking
 
-- name: Remove local interface reference from the main interface file 
+- name: Remove local interface reference from the main interface file
   replace:
     dest=/etc/network/interfaces
     regexp='^.*{{ nat_router_local_interface }}(.|\n)*?(\n|\Z)$'
     replace=''
   notify: restart-networking
 
+ # NOTE: filename must match ^[a-zA-Z0-9_-]+$ (no '.' allowed!)
 - name: Add separate file for local interface to interface.d directory
-  template: src=interface.j2 dest=/etc/network/interfaces.d/{{ nat_router_local_interface }}_hotspot  # NOTE: filename must match ^[a-zA-Z0-9_-]+$ (no '.' allowed!)
+  template: src=interface.j2 dest=/etc/network/interfaces.d/{{ nat_router_local_interface }}_hotspot
   notify: restart-networking
 
 - name: add bridge to hostapd.conf # Note: Hotspot role should be run first!
-  lineinfile: 
-    dest=/etc/hostapd/hostapd.conf 
+  lineinfile:
+    dest=/etc/hostapd/hostapd.conf
     line='bridge=br0'
   when: nat_router_bridge_interfaces|join(" ") is search("wlan")
   notify: restart_hostapd
@@ -73,10 +86,14 @@
 ##############################################################################
 # Routing and NATting
 
-- name: Enable IPv4 forwarding
-  lineinfile: dest=/etc/sysctl.conf regexp='.*net.ipv4.ip_forward.*' line='net.ipv4.ip_forward=1'
-  when: nat_router_disable == false
-  notify: reload_sysctl
+- name: enable forwarding
+  sysctl:
+    name: net.ipv4ip_forward
+    value: 1
+    sysctl_set: yes
+    state: present
+    reload: yes
+  when: not nat_router_disable
 
 # Run handlers to get all network interfaces up before applying firewall configuration
 - meta: flush_handlers
@@ -84,8 +101,8 @@
 - name: iptables config file
   template: src=iptables_conf.j2 dest=/etc/iptables.ipv4.nat
   register: iptables_config
-  when: nat_router_disable == false
+  when: not nat_router_disable
 
 - name: Import iptables config
   shell: iptables-restore < /etc/iptables.ipv4.nat
-  when: iptables_config.changed and nat_router_disable == false
+  when: not (iptables_config.changed and nat_router_disable)
