@@ -15,7 +15,11 @@
 - name: 'Install pysk dependencies'
   apt:
     name: '{{ packages }}'
-    state: latest
+    state: present
+  register: task_result
+  until: task_result is success
+  retries: 2
+  delay: 5
   become: true
   vars:
     packages:
@@ -26,5 +30,9 @@
 - name: 'Install pysk'
   easy_install:
     name: pysk
-    state: latest
+    state: present
+  register: task_result
+  until: task_result is success
+  retries: 2
+  delay: 5
   become: true
