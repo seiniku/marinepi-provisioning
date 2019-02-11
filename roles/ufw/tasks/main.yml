@@ -28,6 +28,14 @@
       src: "{{ item }}"
     with_items: "{{ allowed_networks }}"
 
+  - name: Allow mdns via ufw
+    ufw:
+      rule: allow
+      port: 5353
+      proto: udp
+      src: " {{item }} "
+    with_items: "{{ allowed_networks }}"
+
   - name: default deny, enable ufw
     ufw:
       state: enabled

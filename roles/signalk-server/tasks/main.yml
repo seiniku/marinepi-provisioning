@@ -23,7 +23,7 @@
 
 - name: add signalk user
   user:
-    name: signalk
+    name: "{{ signalk_user }}"
     shell: /bin/bash
 
 - name: make config directory
@@ -31,24 +31,24 @@
     path: /opt/signalk/
     state: directory
     mode: 0755
-    owner: signalk
-    group: signalk
+    owner: "{{ signalk_user }}"
+    group: "{{ signalk_user }}"
 
 - name: make log directory
   file:
     path: /var/log/signalk
     state: directory
     mode: 0755
-    owner: signalk
-    group: signalk
+    owner: "{{ signalk_user }}"
+    group: "{{ signalk_user }}"
 
 # will not overwrite existing configs
 - name: copy default configs
   copy:
     src: opt/signalk/
     dest: /opt/signalk
-    owner: signalk
-    group: signalk
+    owner: "{{ signalk_user }}"
+    group: "{{ signalk_user }}"
     force: no
 
 - name: copy service configs

@@ -11,7 +11,7 @@
     "webapps": true,
     "ws": true
   },
-  "mdns": false,
+  "mdns": true,
   "wsCompression": false,
   "enablePluginLogging": true
 }

@@ -4,7 +4,8 @@ Restart=always
 StandardOutput=syslog
 StandardError=syslog
 WorkingDirectory=/opt/signalk
-User=signalk
-Environment=EXTERNALPORT=3000
+User={{signalk_user}}
+Environment=EXTERNALPORT={{ externalport }}
 [Install]
 WantedBy=multi-user.target
+#make these templates
