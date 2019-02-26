@@ -13,10 +13,10 @@
   retries: 2
   delay: 5
 
-- name: allow port 3000
+- name: allow external port
   ufw:
     rule: allow
-    port: 3000
+    port: '{{ externalport }}'
     proto: tcp
     src: '{{ item }}'
   with_items: '{{ allowed_networks }}'
@@ -42,28 +42,55 @@
     owner: "{{ signalk_user }}"
     group: "{{ signalk_user }}"
 
-# will not overwrite existing configs
-- name: copy default configs
-  copy:
-    src: opt/signalk/
-    dest: /opt/signalk
+- name: copy defaults template
+  template:
+    src: opt/signalk/defaults.json.j2
+    dest: /opt/signalk/defaults.json
     owner: "{{ signalk_user }}"
     group: "{{ signalk_user }}"
+    mode: 0644
     force: no
 
-- name: copy service configs
+- name: copy service config
+  template:
+    src: etc/systemd/system/signalk.service.j2
+    dest: /etc/systemd/system/signalk.service
+    owner: root
+    group: root
+    force: yes
+
+- name: copy socket config
+  template:
+    src: etc/systemd/system/signalk.socket.j2
+    dest: /etc/systemd/system/signalk.socket
+    owner: root
+    group: root
+    force: yes
+
+- name: copy signalk-update
   copy:
-    src: etc/systemd/system/
-    dest: /etc/systemd/system/
+    src: usr/local/bin/signalk-update
+    dest: /usr/local/bin/signalk-update
     owner: root
     group: root
     force: no
+    mode: 0755
 
 - name: set execute on signalk-server
   file:
     path: /opt/signalk/signalk-server
     state: file
     mode: 0755
+
+- name: install react
+  npm:
+    name: react
+    global: yes
+    state: present
+  register: task_result
+  until: task_result is success
+  retries: 2
+  delay: 5
 
 - name: install signalk --long process--
   npm:

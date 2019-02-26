@@ -67,6 +67,8 @@
     - wificlient
     - canboat
     - role: signalk-server
+      vars:
+        externalport: 80
       tags: signalk
     - pysk
     - role: root-ro

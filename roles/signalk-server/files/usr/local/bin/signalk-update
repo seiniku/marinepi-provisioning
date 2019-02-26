@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+# update signalk
+echo "updating signalk-server via npm"
+npm update --unsafe-perm -g signalk-server
+
+# restart services
+echo "restarting signalk"
+systemctl restart signalk.service
+
+echo "run `npm outdated -g --depth=0` to check for additional updates"
